@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portefeuille</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f2f5;
+        }
+        .logo {
+            margin: 20px 0;
+        }
+        .logo img {
+            max-width: 200px;
+        }
+        nav {
+            background-color: #ffffff;
+            width: 100%;
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav ul li {
+            margin: 0 15px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+        main {
+            width: 80%;
+            max-width: 1200px;
+            margin-top: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input, button {
+            margin: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo centré -->
+    <div class="logo">
+        <img src="https://via.placeholder.com/200x100?text=Logo" alt="Logo de l'entreprise">
+    </div>
+
+    <!-- Barre de navigation -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="portefeuille.html">Portefeuille</a></li>
+        </ul>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main>
+        <h1>Gestion du Portefeuille</h1>
+        
+        <form id="portfolioForm">
+            <input type="hidden" id="itemId">
+            <input type="text" id="itemName" placeholder="Nom de l'élément" required>
+            <input type="number" id="itemValue" placeholder="Valeur" required>
+            <button type="submit">Ajouter / Modifier</button>
+        </form>
+
+        <table id="portfolioTable">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Valeur</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Les éléments du portefeuille seront ajoutés ici dynamiquement -->
+            </tbody>
+        </table>
+    </main>
+
+    <script src="portefeuille.js"></script>
+</body>
+</html>

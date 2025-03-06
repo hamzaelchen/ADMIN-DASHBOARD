@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f0f2f5;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-form {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .login-form h2 {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-areas: 
+                "sidebar header"
+                "sidebar main";
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        .logo {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        header {
+            grid-area: header;
+            background-color: #fff;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            grid-area: sidebar;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+        }
+
+        nav ul {
+            list-style-type: none;
+        }
+
+        nav ul li {
+            margin-bottom: 1rem;
+        }
+
+        nav ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover, nav ul li a.active {
+            background-color: #34495e;
+        }
+
+        main {
+            grid-area: main;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .chart-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button.primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        button.secondary {
+            background-color: var(--secondary-color);
+            color: #fff;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .status-button {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .status-button.done {
+            background-color: var(--secondary-color);
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {  /* responsivité*/ 
+            .dashboard-container {
+                grid-template-areas: 
+                    "header"
+                    "main";
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                display: none;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .logo {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="login-page" class="login-container"> <!--formulaire login --> 
+        <form id="login-form" class="login-form">
+            <h2>Connexion</h2>
+            <input type="text" id="username" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            <button type="submit" class="primary">Se connecter</button>
+        </form>
+    </div>
+
+    <div id="dashboard-page" class="dashboard-container" style="display: none;">
+        <nav>
+            <div class="logo">
+                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Wfm-logo-white-circle-g0s31iV9N9NiW25ZC0P9mLEeQFSyQK.png" alt="" style="width: 100px; height: 100px;">
+            </div>
+            <ul>
+                <li><a href="#" id="dashboard-link" class="active">Dashboard</a></li>
+                <li><a href="#" id="portfolio-link">Portefeuille</a></li>
+                <li><a href="#" id="todo-link">To-Do List</a></li>
+            </ul>
+        </nav>
+
+        <header>
+            <h1>Dashboard</h1>
+            <button id="logout-btn" class="secondary">Déconnexion</button>
+        </header>
+
+        <main>
+            <div id="dashboard-content">
+                <div class="chart-container">
+                    <canvas id="portfolioChart"></canvas>
+                </div>
+
+                <h2>To-Do List</h2>
+                <table id="dashboard-todo-table">
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Les tâches seront ajoutées ici dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="portfolio-content" style="display: none;">
+                <h2>Portefeuille</h2>
+                <button id="add-asset" class="primary">Ajouter un actif</button>
+                <table id="portfolio-table">
+                    <thead>
+                        <tr>
+                            <th>Nom de l'actif</th>
+                            <th>Quantité</th>
+                            <th>Valeur</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Les actifs seront ajoutés ici dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="todo-content" style="display: none;">
+                <h2>To-Do List</h2>
+                <button id="add-todo" class="primary">Ajouter une tâche</button>
+                <table id="todo-table">
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Les tâches seront ajoutées ici dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Gestion de l'authentification
+        const loginForm = document.getElementById('login-form');
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault(); //methode de chargement la page 
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'admin' && password === 'admin') {
+                loginPage.style.display = 'none';
+                dashboardPage.style.display = 'grid';  //saffiche none
+            } else {
+                alert('Nom d\'utilisateur ou mot de passe incorrect');
+            }
+        });
+
+        logoutBtn.addEventListener('click', function() { //Réinitialise les champs de connexion et affiche la page de connexion.
+            loginPage.style.display = 'flex';
+            dashboardPage.style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        });
+
+        // Fonction pour basculer entre les différentes sections
+        function toggleContent(contentId) {
+            document.getElementById('dashboard-content').style.display = contentId === 'dashboard-content' ? 'block' : 'none';
+            document.getElementById('portfolio-content').style.display = contentId === 'portfolio-content' ? 'block' : 'none';
+            document.getElementById('todo-content').style.display = contentId === 'todo-content' ? 'block' : 'none';
+
+            // Mise à jour de la classe active dans le menu latéral
+            document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+            document.getElementById(contentId.replace('-content', '-link')).classList.add('active');
+        }
+
+        // Gestionnaires d'événements pour les liens de navigation
+        document.getElementById('dashboard-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleContent('dashboard-content');
+        });
+
+        document.getElementById('portfolio-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleContent('portfolio-content');
+        });
+
+        document.getElementById('todo-link').addEventListener('click', function(e) {
+            e.preventDefault(); //gestion de la soumission 
+            toggleContent('todo-content');
+        });
+
+        // Fonctionnalités du portefeuille
+        let portfolio = [
+            { name: 'Actions', quantity: 100, value: 50 },
+            { name: 'Obligations', quantity: 200, value: 30 },
+            { name: 'Immobilier', quantity: 1, value: 200000 }
+        ];
+
+        function renderPortfolio() {
+            const tbody = document.querySelector('#portfolio-table tbody');
+            tbody.innerHTML = '';
+            portfolio.forEach((asset, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asset.name}</td>            
+                    <td>${asset.quantity}</td>
+                    <td>${asset.value}</td>
+                    <td class="actions">
+                        <button onclick="editAsset(${index})" class="secondary">Modifier</button>
+                        <button onclick="deleteAsset(${index})" class="secondary">Supprimer</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateDashboardChart();
+        }
+
+        function addAsset() {
+            const name = prompt("Nom de l'actif:");
+            const quantity = prompt("Quantité:");
+            const value = prompt("Valeur:");
+            if (name && quantity && value) {
+                portfolio.push({ name, quantity: Number(quantity), value: Number(value) });
+                renderPortfolio();
+            }
+        }
+
+        function editAsset(index) {
+            const asset = portfolio[index];
+            const name = prompt("Nom de l'actif:", asset.name);
+            const quantity = prompt("Quantité:", asset.quantity);
+            const value = prompt("Valeur:", asset.value);
+            if (name && quantity && value) {
+                portfolio[index] = { name, quantity: Number(quantity), value: Number(value) };
+                renderPortfolio();
+            }
+        }
+
+        function deleteAsset(index) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer cet actif?")) {
+                portfolio.splice(index, 1);
+                renderPortfolio();
+            }
+        }
+
+        document.getElementById('add-asset').addEventListener('click', addAsset);
+
+        // Fonctionnalités de la to-do list
+        let todos = [
+            { text: 'Acheter des actions', done: false },
+            { text: 'Vendre des obligations', done: true },
+            { text: 'Étudier le marché', done: false }
+        ];
+
+        function renderTodos() {
+            const todoTbody = document.querySelector('#todo-table tbody');
+            const dashboardTodoTbody = document.querySelector('#dashboard-todo-table tbody');
+            todoTbody.innerHTML = '';
+            dashboardTodoTbody.innerHTML = '';
+            todos.forEach((todo, index) => {
+                const todoTr = document.createElement('tr');
+                todoTr.innerHTML = `
+                    <td>${todo.text}</td>
+                    <td>
+                        <button class="status-button ${todo.done ? 'done' : ''}" onclick="toggleTodoStatus(${index})">
+                            ${todo.done ? 'Fait' : 'Pas fait'}
+                        </button>
+                    </td>
+                    <td class="actions">
+                        <button onclick="editTodo(${index})" class="secondary">Modifier</button>
+                        <button onclick="deleteTodo(${index})" class="secondary">Supprimer</button>
+                    </td>
+                `;
+                todoTbody.appendChild(todoTr);
+
+                const dashboardTodoTr = document.createElement('tr');
+                dashboardTodoTr.innerHTML = `
+                    <td>${todo.text}</td>
+                    <td>
+                        <button class="status-button ${todo.done ? 'done' : ''}" onclick="toggleTodoStatus(${index})">
+                            ${todo.done ? 'Fait' : 'Pas fait'}
+                        </button>
+                    </td>
+                `;
+                dashboardTodoTbody.appendChild(dashboardTodoTr);
+            });
+        }
+
+        function addTodo() {
+            const todoText = prompt("Entrez une nouvelle tâche:");
+            if (todoText) {
+                todos.push({ text: todoText, done: false });
+                renderTodos();
+            }
+        }
+
+        function editTodo(index) {
+            const newTodoText = prompt("Modifier la tâche:", todos[index].text);
+            if (newTodoText) {
+                todos[index].text = newTodoText;
+                renderTodos();
+            }
+        }
+
+        function deleteTodo(index) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer cette tâche?")) {
+                todos.splice(index, 1);
+                renderTodos();
+            }
+        }
+
+        function toggleTodoStatus(index) {
+            todos[index].done = !todos[index].done;
+            renderTodos();
+        }
+
+        document.getElementById('add-todo').addEventListener('click', addTodo);
+
+        // Mise à jour du graphique du dashboard
+        function updateDashboardChart() {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            
+            // Détruire le graphique existant s'il y en a un
+            if (window.portfolioChart instanceof Chart) {
+                window.portfolioChart.destroy();
+            }
+
+            const labels = portfolio.map(asset => asset.name);
+            const data = portfolio.map(asset => asset.quantity * asset.value);
+
+            window.portfolioChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Valeur totale',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)',
+                        ],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Valeur des actifs du portefeuille'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialisation
+        renderPortfolio();
+        renderTodos();
+        updateDashboardChart();
+    </script>
+</body>
+</html>
